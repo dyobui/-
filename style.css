@@ -897,3 +897,46 @@ html, body {
   .room-sidebar { max-height: none; overflow-y: auto; padding-bottom: 0px; }
   .summary-grid { grid-template-columns: 1fr; }
 }
+
+/* ──────────────────────────────────────────
+   단서 보드 (Clue Board)
+   ────────────────────────────────────────── */
+.clue-board-title {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+  text-align: center;
+  margin-top: 15px;
+}
+.clue-board {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 5px;
+}
+.clue-digit {
+  aspect-ratio: 1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cinzel', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--gold-light);
+  transition: all 0.3s ease;
+}
+.clue-digit.discovered {
+  background: rgba(201, 168, 76, 0.1);
+  border: 1px solid var(--gold);
+  text-shadow: 0 0 10px rgba(201, 168, 76, 0.5);
+  animation: digitPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes digitPop {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}

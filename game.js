@@ -351,6 +351,9 @@ function onQuizOption(btn, opt, quiz, room) {
       clueHtml = `<div style="margin-top:12px; padding: 10px; background: rgba(201,168,76,0.15); border-left: 4px solid var(--gold); font-size: 1.05em; color: #fff;">
         🔑 <strong>단서 발견!</strong> 방탈출 코드의 ${nth} 번째 숫자: <strong style="color:var(--gold); font-size:1.2em;">[ ${digit} ]</strong>
       </div>`;
+      
+      // 단서 보드 업데이트
+      updateClueBoard(currentQuizIndex, digit);
     } else {
       clueHtml = `<div style="margin-top:12px; padding: 10px; background: rgba(201,168,76,0.15); border-left: 4px solid var(--gold); font-size: 1.05em; color: #fff;">
         🌟 <strong>완벽합니다!</strong> 모든 퀴즈의 비밀이 풀렸습니다. 이제 코드를 조합해보세요!
@@ -430,6 +433,31 @@ function renderLockSection(room) {
   lockInput.oninput = () => {
     lockInput.value = lockInput.value.replace(/\D/g, '').slice(0, 4);
   };
+
+  // 단서 보드 초기화 (4개 빈 칸)
+  const clueBoard = document.getElementById('clue-board');
+  const clueTitle = document.getElementById('clue-board-title');
+  if (clueBoard) {
+    clueBoard.innerHTML = '';
+    for(let i=0; i<4; i++) {
+        const d = document.createElement('div');
+        d.className = 'clue-digit';
+        d.id = `clue-digit-${i}`;
+        d.textContent = '?';
+        clueBoard.appendChild(d);
+    }
+  }
+  if (clueTitle) clueTitle.style.display = 'none';
+}
+
+function updateClueBoard(index, digit) {
+  const c = document.getElementById(`clue-digit-${index}`);
+  const title = document.getElementById('clue-board-title');
+  if (c) {
+    c.textContent = digit;
+    c.classList.add('discovered');
+  }
+  if (title) title.style.display = 'block';
 }
 
 document.getElementById('lock-submit').addEventListener('click', checkLock);
