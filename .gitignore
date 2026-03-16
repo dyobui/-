@@ -1,0 +1,9 @@
+.DS_Store
+*.log
+cloudflared
+escape_room_*.zip
+__pycache__/
+*.pyc
+node_modules/
+.vercel
+EOF

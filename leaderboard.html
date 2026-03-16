@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🏆 서양미술사 방탈출 — 순위표</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --gold: #c9a84c; --gold-light: #e8c96a; --gold-dim: #7a5f20;
+      --bg: #070711; --bg-card: #0f0f20; --border: rgba(201,168,76,0.25);
+      --text: #f0e8d5; --text-sub: #a09070;
+      --rank1: #ffd700; --rank2: #c0c0c0; --rank3: #cd7f32;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Nanum Gothic', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ─ 헤더 ─ */
+    .header {
+      background: linear-gradient(135deg, #0a0a1e, #15103a);
+      border-bottom: 1px solid var(--border);
+      padding: 24px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 10;
+      backdrop-filter: blur(10px);
+    }
+    .header-title {
+      display: flex; align-items: center; gap: 16px;
+    }
+    .header-title .icon { font-size: 36px; }
+    .header-title h1 {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(18px, 3vw, 26px);
+      background: linear-gradient(135deg, #e8c96a, #c9a84c);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .header-title p { font-size: 13px; color: var(--text-sub); margin-top: 2px; }
+    .header-actions { display: flex; gap: 12px; align-items: center; }
+
+    .btn {
+      padding: 8px 20px; border-radius: 8px; font-size: 13px;
+      cursor: pointer; font-family: 'Nanum Gothic', sans-serif;
+      font-weight: 700; border: none; transition: all 0.2s;
+    }
+    .btn-reset {
+      background: rgba(229,57,53,0.15); color: #ef9a9a;
+      border: 1px solid rgba(229,57,53,0.3);
+    }
+    .btn-reset:hover { background: rgba(229,57,53,0.3); }
+    .btn-refresh {
+      background: rgba(201,168,76,0.15); color: var(--gold);
+      border: 1px solid var(--border);
+    }
+    .btn-refresh:hover { background: rgba(201,168,76,0.3); }
+
+    /* 자동 갱신 표시 */
+    .auto-refresh {
+      font-size: 12px; color: var(--text-sub);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .refresh-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #4caf50;
+      animation: blink 2s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.2; } }
+
+    /* ─ 통계 바 ─ */
+    .stats-bar {
+      display: flex; gap: 20px; padding: 20px 40px;
+      background: rgba(255,255,255,0.02);
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .stat-item {
+      display: flex; flex-direction: column; align-items: center;
+      min-width: 80px;
+    }
+    .stat-value {
+      font-family: 'Cinzel', serif; font-size: 24px;
+      color: var(--gold); font-weight: 700;
+    }
+    .stat-label { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
+
+    /* ─ 메인 테이블 ─ */
+    .leaderboard-wrap { padding: 32px 40px; max-width: 1100px; margin: 0 auto; }
+
+    .table-header-row {
+      display: grid;
+      grid-template-columns: 60px 1fr 100px 100px 100px 110px;
+      gap: 8px;
+      padding: 10px 20px;
+      font-family: 'Cinzel', serif;
+      font-size: 11px; letter-spacing: 2px;
+      color: var(--gold-dim); text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .score-row {
+      display: grid;
+      grid-template-columns: 60px 1fr 100px 100px 100px 110px;
+      gap: 8px; align-items: center;
+      padding: 14px 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 8px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      animation: slideIn 0.4s ease;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .score-row:hover { transform: translateX(4px); box-shadow: 0 0 20px rgba(201,168,76,0.1); }
+
+    /* 상위 3위 */
+    .score-row.rank-1 {
+      background: linear-gradient(135deg, rgba(255,215,0,0.12), var(--bg-card));
+      border-color: rgba(255,215,0,0.4);
+      box-shadow: 0 0 20px rgba(255,215,0,0.1);
+    }
+    .score-row.rank-2 {
+      background: linear-gradient(135deg, rgba(192,192,192,0.1), var(--bg-card));
+      border-color: rgba(192,192,192,0.3);
+    }
+    .score-row.rank-3 {
+      background: linear-gradient(135deg, rgba(205,127,50,0.1), var(--bg-card));
+      border-color: rgba(205,127,50,0.3);
+    }
+
+    .rank-badge {
+      font-family: 'Cinzel', serif; font-size: 18px; font-weight: 900;
+      text-align: center;
+    }
+    .rank-badge.r1 { color: var(--rank1); text-shadow: 0 0 12px rgba(255,215,0,0.5); }
+    .rank-badge.r2 { color: var(--rank2); }
+    .rank-badge.r3 { color: var(--rank3); }
+    .rank-badge.rn { color: var(--text-sub); font-size: 14px; }
+
+    .player-name {
+      font-size: 15px; font-weight: 700; color: var(--text);
+    }
+    .player-name .medal { margin-right: 6px; }
+
+    .col-center {
+      text-align: center; font-size: 14px;
+    }
+    .accuracy-val { color: #a5d6a7; }
+    .speed-val    { color: #90caf9; }
+    .total-val {
+      font-family: 'Cinzel', serif; font-size: 16px; font-weight: 700;
+      color: var(--gold);
+    }
+    .total-val.rank-1-score { color: var(--rank1); }
+
+    /* 점수 바 */
+    .score-bar-wrap {
+      width: 100%; height: 4px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 2px; margin-top: 4px;
+    }
+    .score-bar { height: 100%; border-radius: 2px; transition: width 0.8s ease; }
+
+    /* 빈 상태 */
+    .empty-state {
+      text-align: center; padding: 80px 20px;
+      color: var(--text-sub);
+    }
+    .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+    .empty-state p { font-size: 16px; }
+
+    /* 카운트다운 */
+    .next-refresh {
+      text-align: center; padding: 16px;
+      font-size: 12px; color: var(--text-sub);
+    }
+
+    /* 반응형 */
+    @media (max-width: 700px) {
+      .table-header-row, .score-row {
+        grid-template-columns: 40px 1fr 80px 90px;
+      }
+      .col-accuracy, .col-speed { display: none; }
+      .header, .stats-bar, .leaderboard-wrap { padding-left: 16px; padding-right: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-title">
+    <div class="icon">🏆</div>
+    <div>
+      <h1>서양미술사 방탈출 순위표</h1>
+      <p>실시간 자동 갱신 · 정확도 70% + 속도 30% = 100점 만점</p>
+    </div>
+  </div>
+  <div class="header-actions">
+    <div class="auto-refresh">
+      <div class="refresh-dot"></div>
+      <span id="countdown-text">5초 후 갱신</span>
+    </div>
+    <button class="btn btn-refresh" onclick="fetchScores()">🔄 지금 갱신</button>
+    <button class="btn btn-reset" onclick="resetScores()">🗑️ 초기화</button>
+  </div>
+</div>
+
+<!-- 통계 -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-value" id="stat-count">0</div>
+    <div class="stat-label">참여 학생</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-value" id="stat-avg">-</div>
+    <div class="stat-label">평균 점수</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-value" id="stat-top">-</div>
+    <div class="stat-label">최고 점수</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-value" id="stat-avg-acc">-</div>
+    <div class="stat-label">평균 정확도</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-value" id="stat-full">0</div>
+    <div class="stat-label">100점 만점</div>
+  </div>
+</div>
+
+<!-- 순위표 -->
+<div class="leaderboard-wrap">
+  <div class="table-header-row">
+    <div>순위</div>
+    <div>이름</div>
+    <div class="col-center col-accuracy">정확도</div>
+    <div class="col-center col-speed">속도점수</div>
+    <div class="col-center">소요시간</div>
+    <div class="col-center">총점</div>
+  </div>
+  <div id="leaderboard-list">
+    <div class="empty-state">
+      <div class="icon">⏳</div>
+      <p>아직 제출된 점수가 없습니다<br>학생들이 게임을 완료하면 자동으로 나타납니다</p>
+    </div>
+  </div>
+</div>
+<div class="next-refresh" id="next-refresh"></div>
+
+<script>
+const MEDALS = ['🥇', '🥈', '🥉'];
+const RANK_CLASS = ['rank-1', 'rank-2', 'rank-3'];
+let countdown = 5;
+let timer;
+
+async function fetchScores() {
+  try {
+    const resp = await fetch('/api/scores');
+    const scores = await resp.json();
+    renderLeaderboard(scores);
+  } catch(e) {
+    console.error('점수 불러오기 실패:', e);
+  }
+  resetCountdown();
+}
+
+function renderLeaderboard(scores) {
+  const list = document.getElementById('leaderboard-list');
+
+  if (!scores || scores.length === 0) {
+    list.innerHTML = `<div class="empty-state"><div class="icon">⏳</div>
+      <p>아직 제출된 점수가 없습니다<br>학생들이 게임을 완료하면 자동으로 나타납니다</p></div>`;
+    updateStats([]);
+    return;
+  }
+
+  // 정렬 (total_score 내림차순, 동점이면 시간 빠른 순)
+  scores.sort((a, b) => {
+    const diff = (b.total_score || 0) - (a.total_score || 0);
+    if (diff !== 0) return diff;
+    return (a.elapsed_sec || 9999) - (b.elapsed_sec || 9999);
+  });
+
+  const maxScore = scores[0]?.total_score || 100;
+
+  list.innerHTML = scores.slice(0, 40).map((s, i) => {
+    const rank = i + 1;
+    const rankClass = rank <= 3 ? RANK_CLASS[rank-1] : '';
+    const rankHtml = rank <= 3
+      ? `<div class="rank-badge r${rank}">${rank}</div>`
+      : `<div class="rank-badge rn">${rank}</div>`;
+    const medal = rank <= 3 ? `<span class="medal">${MEDALS[rank-1]}</span>` : '';
+    const totalClass = rank === 1 ? 'total-val rank-1-score' : 'total-val';
+    const barColor = rank === 1 ? '#ffd700' : rank === 2 ? '#c0c0c0' : rank === 3 ? '#cd7f32' : '#c9a84c';
+    const barWidth = Math.round((s.total_score / 100) * 100);
+
+    return `
+    <div class="score-row ${rankClass}">
+      ${rankHtml}
+      <div>
+        <div class="player-name">${medal}${escHtml(s.name)}</div>
+        <div class="score-bar-wrap">
+          <div class="score-bar" style="width:${barWidth}%;background:${barColor}"></div>
+        </div>
+      </div>
+      <div class="col-center col-accuracy">
+        <div class="accuracy-val">${s.accuracy_pct ?? '-'}%</div>
+        <div style="font-size:11px;color:#666">${s.correct ?? '-'}/${s.total ?? 20}문제</div>
+      </div>
+      <div class="col-center col-speed">
+        <div class="speed-val">${s.speed_score ?? '-'}점</div>
+      </div>
+      <div class="col-center" style="font-size:13px;color:#a09070">${s.time_str ?? '-'}</div>
+      <div class="col-center">
+        <div class="${totalClass}">${s.total_score ?? '-'}점</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  updateStats(scores);
+}
+
+function updateStats(scores) {
+  document.getElementById('stat-count').textContent = scores.length;
+  if (scores.length === 0) {
+    ['stat-avg','stat-top','stat-avg-acc'].forEach(id => document.getElementById(id).textContent = '-');
+    document.getElementById('stat-full').textContent = '0';
+    return;
+  }
+  const avg = (scores.reduce((s,x) => s + (x.total_score||0), 0) / scores.length).toFixed(1);
+  const top = scores[0]?.total_score ?? '-';
+  const avgAcc = (scores.reduce((s,x) => s + (x.accuracy_pct||0), 0) / scores.length).toFixed(1);
+  const full = scores.filter(s => (s.total_score||0) >= 100).length;
+  document.getElementById('stat-avg').textContent = avg + '점';
+  document.getElementById('stat-top').textContent = top + '점';
+  document.getElementById('stat-avg-acc').textContent = avgAcc + '%';
+  document.getElementById('stat-full').textContent = full;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function resetScores() {
+  const pwd = prompt('초기화하시려면 비밀번호를 입력하세요:');
+  if (pwd !== '7739') {
+    if (pwd !== null) alert('비밀번호가 틀렸습니다.');
+    return;
+  }
+  if (!confirm('정말 모든 점수를 초기화하시겠습니까? 복구할 수 없습니다.')) return;
+  await fetch('/api/reset?pw=' + pwd);
+  fetchScores();
+}
+
+function resetCountdown() {
+  clearInterval(timer);
+  countdown = 5;
+  updateCountdown();
+  timer = setInterval(() => {
+    countdown--;
+    if (countdown <= 0) { fetchScores(); return; }
+    updateCountdown();
+  }, 1000);
+}
+
+function updateCountdown() {
+  const el = document.getElementById('countdown-text');
+  const nr = document.getElementById('next-refresh');
+  if(el) el.textContent = `${countdown}초 후 갱신`;
+  if(nr) nr.textContent = `다음 갱신: ${countdown}초 후`;
+}
+
+fetchScores();
+</script>
+</body>
+</html>

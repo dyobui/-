@@ -1,0 +1,8 @@
+{
+  "name": "art-history-escape",
+  "version": "1.0.0",
+  "description": "서양미술사 방탈출 게임 (Vercel 배포용)",
+  "dependencies": {
+    "@vercel/kv": "^3.0.0"
+  }
+}

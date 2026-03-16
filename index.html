@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>밤의 미술관을 탈출해라! — 미술관 게임</title>
+  <meta name="description" content="고등학교 서양미술사 학습을 위한 인터랙티브 방탈출 게임. 고대부터 인상주의까지 4개의 전시실을 탈출하세요!">
+  <!-- 카카오톡 등 미리보기 (Open Graph) -->
+  <meta property="og:title" content="밤의 미술관을 탈출해라! — 미술관 게임">
+  <meta property="og:description" content="미술관에 갇혔다! 퀴즈를 풀고 이곳을 탈출하세요.">
+  <meta property="og:url" content="https://cant-generation-donna-mpeg.trycloudflare.com/">
+  <meta property="og:image" content="https://cant-generation-donna-mpeg.trycloudflare.com/images/intro.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="game-container">
+
+  <!-- ══ 이름 입력 화면 ══ -->
+  <section id="screen-name" class="screen active">
+    <div class="intro-content">
+      <div style="margin-bottom:20px;">
+        <img src="images/intro.png" alt="학생 캐릭터" style="width:100%; max-width:280px; border-radius:16px; box-shadow:0 8px 24px rgba(0,0,0,0.6); border:2px solid rgba(201,168,76,0.3);">
+      </div>
+      <div class="intro-subtitle">SeoulSejong Museum</div>
+      <h1 class="intro-title" style="font-size: clamp(24px, 5vw, 40px); margin-bottom: 12px;">밤의 미술관을 탈출해라!</h1>
+      <div class="intro-title-sub">미술관 게임</div>
+      <div class="intro-divider"></div>
+      <div style="margin-bottom:28px;">
+        <label style="display:block;font-size:13px;color:var(--text-sub);margin-bottom:10px;letter-spacing:2px;">이름을 입력하세요</label>
+        <input
+          id="player-name-input"
+          type="text"
+          maxlength="10"
+          placeholder="홍길동"
+          autocomplete="off"
+          style="
+            width:100%;padding:14px 20px;
+            background:rgba(255,255,255,0.05);
+            border:1px solid var(--gold-dim);
+            border-radius:10px;
+            color:var(--gold-light);
+            font-family:'Nanum Myeongjo',serif;
+            font-size:22px;letter-spacing:4px;
+            text-align:center;outline:none;
+            transition:border-color .2s,box-shadow .2s;
+          "
+          oninput="document.getElementById('name-error').textContent=''"
+        >
+        <div id="name-error" style="margin-top:6px;font-size:12px;color:#ef9a9a;min-height:16px;"></div>
+      </div>
+      <button id="btn-enter-name" class="btn btn-primary" style="width:100%;justify-content:center;">
+        🚪 &nbsp;탈출 시작!
+      </button>
+      <div style="margin-top:14px;font-size:12px;color:var(--text-muted);letter-spacing:1px;">
+        ✨ 이름은 순위표에 표시됩니다
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 인트로 화면 ══ -->
+  <section id="screen-intro" class="screen">
+    <div class="intro-content">
+      <div style="margin-bottom:20px;">
+        <img src="images/intro.png" alt="학생 캐릭터" style="width:100%; max-width:280px; border-radius:16px; box-shadow:0 8px 24px rgba(0,0,0,0.6); border:2px solid rgba(201,168,76,0.3);">
+      </div>
+      <div id="intro-player-greeting" style="font-size:14px;color:var(--gold);letter-spacing:2px;margin-bottom:4px;"></div>
+      <div class="intro-subtitle">SeoulSejong Museum</div>
+      <h1 class="intro-title" style="font-size: clamp(24px, 5vw, 40px); margin-bottom: 12px;">밤의 미술관을 탈출해라!</h1>
+      <div class="intro-title-sub">미술관 게임</div>
+      <div class="intro-divider"></div>
+      <div class="intro-story">
+        <p id="intro-story"></p>
+      </div>
+      <button id="btn-start" class="btn btn-primary">
+        🚪 &nbsp;탈출 시작
+      </button>
+      <div style="margin-top:20px; font-size:12px; color:var(--text-muted); letter-spacing:1px;">
+        ✨ 작품을 클릭하여 단서를 모으고 · 자물쇠 코드를 해제하세요
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 게임 방 화면 ══ -->
+  <section id="screen-room" class="screen">
+
+    <!-- 상단 HUD -->
+    <header class="room-hud">
+      <div class="hud-left">
+        <div>
+          <div class="room-badge" id="room-badge">전시실 1 / 4</div>
+          <div class="room-title-hud" id="room-title-hud">제1전시실</div>
+        </div>
+      </div>
+      <div class="hud-right">
+        <div class="progress-bar-wrap">
+          <div class="progress-dots" id="progress-dots"></div>
+        </div>
+        <div id="game-timer" style="font-family:'Cinzel',serif;font-size:13px;color:var(--gold-dim);letter-spacing:2px;min-width:56px;text-align:right;">00:00</div>
+        <button class="hint-btn" id="hint-btn">
+          💡 힌트
+        </button>
+      </div>
+    </header>
+
+    <!-- 메인 (방 장면 + 사이드바) -->
+    <div class="room-main">
+
+      <!-- 방 장면 (핫스팟) -->
+      <div class="room-scene theme-ancient" id="room-scene">
+        <div class="room-scene-bg" id="room-scene-bg"></div>
+        <div class="room-decoration"></div>
+        <!-- 핫스팟은 JS가 동적으로 삽입 -->
+      </div>
+
+      <!-- 사이드바 -->
+      <aside class="room-sidebar">
+
+        <!-- 퀴즈 섹션 -->
+        <div class="sidebar-section">
+          <div class="sidebar-section-title" style="display:flex;justify-content:space-between;align-items:center;">
+            <span>📝 미술사 퀴즈</span>
+            <span id="quiz-progress" style="font-size:12px;color:var(--gold);letter-spacing:1px;">문제 1 / 5</span>
+          </div>
+          <div class="quiz-question" id="quiz-question"></div>
+          <div class="quiz-options" id="quiz-options"></div>
+          <div class="quiz-feedback" id="quiz-feedback"></div>
+          <button id="quiz-next-btn" style="display:none;margin-top:12px;width:100%;padding:11px 16px;background:linear-gradient(135deg,var(--gold),var(--gold-dim));border:none;border-radius:8px;color:#000;font-family:'Nanum Gothic',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;align-items:center;justify-content:center;gap:6px;">다음 문제 →</button>
+        </div>
+
+        <!-- 작품 목록 안내 -->
+        <div class="sidebar-section" style="flex:1; color:var(--text-muted); font-size:12px; line-height:2;">
+          <div class="sidebar-section-title">🖼️ 이용 방법</div>
+          <div>1. 왼쪽 방 안의 <strong style="color:var(--gold)">빛나는 작품</strong>을 클릭하세요</div>
+          <div>2. 설명을 읽고 <strong style="color:var(--gold)">단서(🔑)를 수집</strong>하세요</div>
+          <div>3. 퀴즈를 풀어 정답을 확인하세요</div>
+          <div>4. 단서를 조합해 <strong style="color:var(--gold)">4자리 코드</strong>를 입력하세요</div>
+          <div>5. 막히면 <strong style="color:#8ab4f8">💡 힌트</strong> 버튼을 누르세요!</div>
+        </div>
+
+        <!-- 자물쇠 섹션 (하단 고정용) -->
+        <div class="sidebar-section" id="lock-section">
+          <div class="sidebar-section-title">🔐 자물쇠 해제</div>
+          <div class="lock-hint" id="lock-hint"></div>
+          <div class="lock-input-wrap">
+            <input
+              type="text"
+              id="lock-input"
+              class="lock-input"
+              placeholder="_ _ _ _"
+              maxlength="4"
+              inputmode="numeric"
+              autocomplete="off"
+            >
+            <button class="lock-submit" id="lock-submit" title="확인">🔓</button>
+          </div>
+          <div class="lock-message" id="lock-message"></div>
+        </div>
+
+      </aside>
+    </div>
+  </section>
+
+  <!-- ══ 엔딩 화면 ══ -->
+  <section id="screen-ending" class="screen">
+    <div class="ending-content">
+      <div class="ending-trophy">🏆</div>
+      <h1 class="ending-title">탈출 성공!</h1>
+      <div class="ending-subtitle" id="ending-player-name">당신은 탁월한 미술사 탐정입니다!</div>
+
+      <!-- 내 점수 카드 -->
+      <div id="my-score-card" style="
+        display:flex;gap:0;border:1px solid var(--border);
+        border-radius:12px;overflow:hidden;margin-bottom:20px;
+        background:rgba(201,168,76,0.06);
+      ">
+        <div style="flex:1;padding:18px 12px;text-align:center;border-right:1px solid var(--border);">
+          <div style="font-size:28px;font-weight:900;font-family:'Cinzel',serif;color:var(--gold);" id="score-accuracy-val">-</div>
+          <div style="font-size:11px;color:var(--text-sub);margin-top:4px;">정답 수</div>
+        </div>
+        <div style="flex:1;padding:18px 12px;text-align:center;border-right:1px solid var(--border);">
+          <div style="font-size:28px;font-weight:900;font-family:'Cinzel',serif;color:#90caf9;" id="score-time-val">-</div>
+          <div style="font-size:11px;color:var(--text-sub);margin-top:4px;">소요시간</div>
+        </div>
+        <div style="flex:1;padding:18px 12px;text-align:center;">
+          <div style="font-size:32px;font-weight:900;font-family:'Cinzel',serif;color:var(--gold-light);" id="score-total-val">-</div>
+          <div style="font-size:11px;color:var(--text-sub);margin-top:4px;">총점</div>
+        </div>
+      </div>
+
+      <!-- 제출 상태 메시지 -->
+      <div id="submit-status" style="font-size:13px;color:var(--text-sub);margin-bottom:16px;min-height:18px;"></div>
+
+      <div class="ending-summary">
+        <h3>🎨 오늘 배운 서양미술사</h3>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <div class="summary-item-icon">🏺</div>
+            <div class="summary-item-text">
+              <strong>고대 &amp; 중세 (~1400년)</strong>
+              비잔틴 금빛 모자이크, 고딕 스테인드글라스
+            </div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-item-icon">🎨</div>
+            <div class="summary-item-text">
+              <strong>르네상스 (1400~1600)</strong>
+              다빈치, 미켈란젤로, 원근법, 스푸마토
+            </div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-item-icon">🕯️</div>
+            <div class="summary-item-text">
+              <strong>바로크 &amp; 로코코 (1600~1780)</strong>
+              카라바조, 렘브란트, 키아로스쿠로
+            </div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-item-icon">🌸</div>
+            <div class="summary-item-text">
+              <strong>인상주의 (1860년~)</strong>
+              모네 수련, 고흐 별밤, 쇠라 점묘법
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <button id="btn-restart" class="btn btn-primary">
+          🔄 &nbsp;다시 플레이
+        </button>
+        <button onclick="window.open('/leaderboard.html','_blank')" class="btn btn-secondary">
+          🏆 &nbsp;순위표 보기
+        </button>
+      </div>
+
+      <div style="margin-top:20px;font-size:13px;color:var(--text-muted);line-height:1.8;">
+        탈출 코드: <span style="color:var(--gold);letter-spacing:4px;font-family:'Cinzel',serif;">1492 · 1503 · 1666 · 1874</span>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /#game-container -->
+
+<!-- ══ 핫스팟 팝업 ══ -->
+<div class="popup-overlay" id="popup-overlay">
+  <div class="popup-box">
+    <button class="popup-close" id="popup-close">✕</button>
+    <div class="popup-title" id="popup-title"></div>
+    <div class="popup-content" id="popup-content"></div>
+  </div>
+</div>
+
+<!-- ══ 방 전환 오버레이 ══ -->
+<div class="door-transition" id="door-transition">
+  <div class="door-text" id="door-text"></div>
+</div>
+
+<script src="rooms.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
